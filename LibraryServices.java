@@ -53,10 +53,9 @@ public interface LibraryServices  {
         }
     }
 
-    default public Book borrowBook (Book book, Author author){
+    default public Book borrowBook (Book book){
 
         for (int i = 0; i < authors.size(); i++){
-            if (authors.get(i).equals(author)){
                 for (int j = 0; j < authors.get(i).getAuthorBooks().size(); j++){
                     if(authors.get(i).getAuthorBooks().get(j).equals(book) && authors.get(i).getAuthorBooks().get(j).getStatus().equals("Available") ){
                         authors.get(i).getAuthorBooks().get(j).setStatus("Not Available");
@@ -67,15 +66,13 @@ public interface LibraryServices  {
                     }
                 }
             }
-        }
         return null;
     }
 
 
-   default public Book returnBook (Book book, Author author){
+   default public Book returnBook (Book book){
 
         for (int i = 0; i < authors.size(); i++){
-            if (authors.get(i).equals(author)){
                 for (int j = 0; j < authors.get(i).getAuthorBooks().size(); j++){
                     if(authors.get(i).getAuthorBooks().get(j).equals(book) && authors.get(i).getAuthorBooks().get(j).getStatus().equals("Not Available") ){
                         authors.get(i).getAuthorBooks().get(j).setStatus("Available");
@@ -87,7 +84,6 @@ public interface LibraryServices  {
                     }
                 }
             }
-        }
         return null;
     }
 }
