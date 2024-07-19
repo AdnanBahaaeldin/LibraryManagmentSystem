@@ -1,40 +1,18 @@
 import java.util.ArrayList;
 
-public class Author extends Person implements LibraryServices {
+public class Author extends Person implements LibraryServices  {
 
-    ArrayList<Book> books;
+    private final int authorId;
 
-    Author(String firstName, String lastName, int age)
+    Author(String firstName, String lastName, int age,int authorId)
     {
         super(firstName,lastName, age);
-        this.books = new ArrayList<>();
+        this.authorId = authorId;
     }
 
-    public ArrayList<Book> getAuthorBooks ()
-    {
-        return books;
+    public int getAuthorId() {
+        return authorId;
     }
-
-    public void addBook(String name , String dateOfPublish, String bookType){
-        books.add(new Book(name,dateOfPublish,bookType));
-    }
-
-    public void removeBook(String bookName, String dateOfPublish, String bookType) {
-        Book tempbook = new Book(bookName,dateOfPublish,bookType) ;
-        int flag = 0;
-        for (int i=0; i <books.size(); i++){
-            if (books.get(i).equals(tempbook)){
-                flag = 1;
-                books.remove(i);
-                System.out.println("Successfully removed the book");
-            }
-        }
-        if (flag == 0){
-            System.out.println("This book isn't available for the system to remove");
-        }
-
-    }
-
 
     @Override
     public String toString() {
@@ -42,12 +20,16 @@ public class Author extends Person implements LibraryServices {
                 + "-First Name:" + getFirstName() + "\n"
                 + "-Last Name:" + getLastName() + "\n"
                 + "-Age:" + getAge() + "\n"
-                + "Published Books:");
+                + "Published Books: \n");
 
-        for (int i=0; i<books.size(); i++){
-            s.append(books.get(i).toString());
+        for (Book book : LibraryServices.books) {
+            if (book.getAuthorId() == this.authorId){
+                s.append(book.getName()).append(" ");
+                s.append(book.getBookId());
+                s.append("\n");
+            }
         }
-        s.append("\n");
+
         return s.toString();
     }
 

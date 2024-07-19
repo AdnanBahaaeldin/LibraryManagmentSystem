@@ -1,21 +1,39 @@
 import java.util.ArrayList;
 
 public class Customer extends Person  {
-    static int customerId = 0;
-    int id;
-    private ArrayList<Book> borrowedBooks = new ArrayList<>();
 
-    Customer(String firstName, String lastName, int age) {
+    private int customerId;
+    private final ArrayList <Integer> borrowedBook;
+
+    Customer(String firstName, String lastName, int age,int customerId) {
         super(firstName,lastName, age);
-        this.id = customerId++;
+        borrowedBook = new ArrayList<>();
+        this.customerId = customerId;
+    }
+
+    public void setCustomerId(int customerId) {
+        this.customerId = customerId;
+    }
+
+    public void setBorrowedBook(int borrowedBook) {
+        this.borrowedBook.add(borrowedBook);
     }
 
     public ArrayList<Book> getBorrowedBooks() {
-        return borrowedBooks;
+             ArrayList<Book> brwdBooks = new ArrayList<>();
+             for (int i=0; i< LibraryServices.books.size(); i++){
+                 for (Integer integer : borrowedBook) {
+                     if (LibraryServices.books.get(i).getBookId() == integer) {
+                         brwdBooks.add(LibraryServices.books.get(i));
+                         brwdBooks.getLast().setStatus("Not Available");
+                     }
+                 }
+             }
+             return brwdBooks;
     }
 
     public int getCustomerId() {
-        return id;
+        return customerId;
     }
 
     @Override
@@ -28,6 +46,14 @@ public class Customer extends Person  {
 
     @Override
     public String toString() {
-        return("Customer name:" + this.getFirstName() + " " + this.getLastName() + "\n Customer age: " + this.getAge() + "\n Customer ID: " + this.getCustomerId());
+        String s1 = "Customer name:" + this.getFirstName() + " " + this.getLastName() + "\n Customer age: " + this.getAge() + "\n Customer ID: " + this.getCustomerId();
+        String s2;
+        try {
+          s2 =   "\n Borrowed books:" + this.getBorrowedBooks();
+
+        }catch (NullPointerException e) {
+            s2 = "\n Customer has not borrowed any books.";
+        }
+        return s1+s2;
     }
 }

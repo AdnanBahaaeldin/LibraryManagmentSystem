@@ -1,29 +1,24 @@
+import java.util.ArrayList;
 import java.util.Date;
 
-public class Book {
+public class Book implements LibraryServices{
 
-    private String name;
-    private Author author;
-    private String dateOfPublish;
-    private String type;
+    private final String name;
+    private final String dateOfPublish;
+    private final String type;
     private String status;
     private String returnDate;
-    private static int bookId = 1;
+    private final int authorId;
+    private final int bookId;
 
-    Book (String name , String dateOfPublish, String bookType){
+
+    Book (int bookId,String name , String dateOfPublish, String bookType , int author){
         this.name = name;
         this.dateOfPublish  = dateOfPublish;
         this.type = bookType;
+        this.bookId = bookId;
         this.status = "Available";
-        bookId++;
-    }
-
-    public String getReturnDate() {
-        return returnDate;
-    }
-
-    public void setReturnDate(String returnDate) {
-        this.returnDate = returnDate;
+        this.authorId = author;
     }
 
     public String getStatus() {
@@ -38,7 +33,6 @@ public class Book {
         return dateOfPublish;
     }
 
-
     public String getName() {
         return name;
     }
@@ -51,22 +45,9 @@ public class Book {
         return type;
     }
 
-    public void setType(String type) {
-        this.type = type;
+    public int getAuthorId() {
+        return authorId;
     }
-
-    public void setName(String name) {
-        this.name = name;
-    }
-
-    public void setAuthor(Author author) {
-        this.author = author;
-    }
-
-    public void setDateOfPublish(String dateOfPublish) {
-        this.dateOfPublish = dateOfPublish;
-    }
-
 
     @Override
     public boolean equals(Object o) {
@@ -80,6 +61,6 @@ public class Book {
 
     @Override
     public String toString() {
-        return "Book name: " +this.name + " Book type: " + this.type + " Date of publishing: " + this.dateOfPublish + " ["+ this.status + "]\n";
+        return "Book name: " +this.name + " Book type: " + this.type + " Date of publishing: " + "Author: " + this.authorId + this.dateOfPublish + " ["+ this.status + "]\n";
     }
 }

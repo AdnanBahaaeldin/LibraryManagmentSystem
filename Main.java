@@ -1,3 +1,4 @@
+import java.util.ArrayList;
 import java.util.Scanner;
 
 //TIP To <b>Run</b> code, press <shortcut actionId="Run"/> or
@@ -5,8 +6,9 @@ import java.util.Scanner;
 public class Main {
     public static void main(String[] args) {
 
-        Library manager = new Library();
         Scanner scanner = new Scanner(System.in);
+        DBManager.setupConnection();
+        LibraryServices.clearSystem();
 
         while (true) {
             System.out.println("Choose a program:\n" +
@@ -17,49 +19,94 @@ public class Main {
             int in = scanner.nextInt();
             if (in == 1) {
                 while (true) {
-
                     System.out.println(
                             "Please choose one from the following tasks: \n" +
                                     "\t 1) Add an author \n" +
                                     "\t 2) Add a book \n" +
                                     "\t 3) Remove a book \n" +
-                                    "\t 4) Show Author's work \n" +
-                                    "\t 5) Add customer \n" +
-                                    "\t 6) Show all customers \n" +
-                                    "\t 7) Return to previous list \n");
+                                    "\t 4) Get author details and ID \n" +
+                                    "\t 5) Show Author's work \n" +
+                                    "\t 6) Add customer \n" +
+                                    "\t 7) Show all customers \n" +
+                                    "\t 8) Return to previous list \n");
 
                     in = scanner.nextInt();
-                    if (in == 7) {
+                    if (in == 8) {
                         break;
                     }
                     switch (in) {
+                        case 0:
+                            System.out.println("Enter authorization:");
+                            String managerName = scanner.next();
+                            int password = scanner.nextInt();
+                            if (managerName .equals("Adnan") && password == 1234){
+                                DBManager.dbInit();
+                                break;
+                            }
+                            System.out.println("Wrong authorization.");
+                            break;
                         case 1:
                             System.out.println("Enter author details: First name, Last name and age \n");
-                            manager.getAuthors().add(new Author(scanner.next(), scanner.next(), scanner.nextInt()));
-                            System.out.println("Author has been added successfully.");
+                            String authorFName;
+                            String authorLName;
+                            int authorAge;
+                            DBManager.addAuthor(authorFName = scanner.next(), authorLName = scanner.next(), authorAge = scanner.nextInt());
+                            System.out.println("Author " + authorFName + " " + authorLName +
+                                    " has been added successfully with ID:" + DBManager.fetchAuthorId(authorFName,authorLName,authorAge));
                             break;
                         case 2:
-                            System.out.println("Enter book details: Book name, Author details, Release date and Genre \n");
-                            manager.addBookByAuthorName(scanner.next(), manager.getAuthor(scanner.next(), scanner.next(), scanner.nextInt()), scanner.next(), scanner.next());
-                            System.out.println("Book has been added successfully.");
+                            System.out.println("Enter book details: Book name, Release date, Genre and author ID \n");
+                            String bookName;
+                            DBManager.addBook(bookName = scanner.next(), scanner.next(), scanner.next(),scanner.nextInt());
+                            System.out.println("Book " + bookName + "has been added successfully.");
                             break;
                         case 3:
-                            System.out.println("Enter book details: Book name, Author details, Release date and genre \n");
-                            manager.removeBook(scanner.next(), manager.getAuthor(scanner.next(), scanner.next(), scanner.nextInt()), scanner.next(), scanner.next());
+                            System.out.println("Enter book details: Book name, Release date, genre and author Id \n");
+                            DBManager.removeBook(scanner.next(),scanner.next(),scanner.next(),scanner.nextInt());
                             System.out.println("Book has been removed successfully.");
                             break;
                         case 4:
                             System.out.println("Enter author details: First name, Last name and age \n");
-                            System.out.println(manager.getAuthor(scanner.next(), scanner.next(), scanner.nextInt()));
+                            String fname;
+                            String lname;
+                            int age;
+                            int authorId = DBManager.fetchAuthorId(fname = scanner.next(),lname = scanner.next(), age = scanner.nextInt());
+                            if (authorId != 0){
+                                System.out.println("Author's first name: "+ fname +
+                                        "\n Author's last name: " + lname +
+                                        "\n Author's age: " + age +
+                                        "\n Author's ID: " + authorId);
+                            }else {
+                                System.out.println("Such author doesn't exist.");
+                            }
                             break;
                         case 5:
+                            try {
+                                System.out.println("Enter author ID: \n");
+                                int id = scanner.nextInt();
+                                System.out.println("Author's books:");
+                                DBManager.fetchAuthorBooks(id);
+                                break;
+                            }catch (NullPointerException e) {
+                                System.out.println("Author doesn't have any registered books.");
+                                break;
+                            }
+
+                        case 6:
                             System.out.println("Enter customer details: First name, Last name and age\n");
-                            manager.getCustomers().add(new Customer(scanner.next(), scanner.next(), scanner.nextInt()));
+                            DBManager.addCustomer(scanner.next(), scanner.next(), scanner.nextInt());
                             System.out.println("Customer has been added successfully.");
                             break;
-                        case 6:
-                            System.out.println("Showing all customers: \n");
-                            System.out.println(manager.getCustomers().toString());
+                        case 7:
+                            try {
+                                System.out.println("Showing all customers: \n");
+                                ArrayList<Customer> tempcustomer = DBManager.fetchCustomers();
+                                for (Customer c : tempcustomer){
+                                    System.out.println(c.toString());
+                                }
+                            }catch (NullPointerException e) {
+                                System.out.println("No customers are registered in data base.");
+                            }
                             break;
                         default:
                             break;
@@ -67,69 +114,66 @@ public class Main {
                 }
             } else if (in == 2) {
                     System.out.println("\t Welcome to the library ! \n" +
-                            "Please enter your name and age:\n");
-                    Customer customer = new Customer(scanner.next(), scanner.next(), scanner.nextInt());
-                    if (manager.checkCustomer(customer) != null) {
-                        while (true){
-                        System.out.println(
-                                        "Hello, " + customer.getFirstName() + " How can we help you today ? \n" +
-                                        "\t 1) Borrow a book \n" +
-                                        "\t 2) Return a book \n" +
-                                        "\t 3) Show borrowed books \n" +
-                                        "\t 4) Show Authors and their works \n" +
-                                        "\t 5) Create an account \n" +
-                                        "\t 6) Return to previous list\n");
-
-                        in = scanner.nextInt();
-                        switch (in) {
-                            case 1:
-                                System.out.println("Enter book details:");
-                                Book brwBook = manager.borrowBook(new Book(scanner.next(), scanner.next(), scanner.next()));
-                                try {
-                                    customer.getBorrowedBooks().add(brwBook);
-                                    System.out.println("Enter return date:");
-                                    customer.getBorrowedBooks().getLast().setReturnDate(scanner.next());
-                                    System.out.println("The specified book: " + brwBook.getName()+" has been borrowed for customer:" + customer.getFirstName() + "with id: " +customer.getCustomerId());
-                                } catch (NullPointerException e){
-                                    System.out.println("Sorry, this book is unavailable");
-                                }
+                            "Please enter your ID:\n" +
+                            "0) Return to previous page");
+                    int cId = scanner.nextInt();
+                    if (cId == 0){
+                        break;
+                    }
+                    if (DBManager.checkCustomer(cId)) {
+                        Customer customer = DBManager.fetchCustomer(cId);
+                        while (true) {
+                            System.out.println(
+                                    "Hello, " + customer.getFirstName() + " your ID is: " + customer.getCustomerId() + " How can we help you today ? \n" +
+                                            "\t 1) Borrow a book \n" +
+                                            "\t 2) Return a book \n" +
+                                            "\t 3) Show borrowed books \n" +
+                                            "\t 4) Show Authors and their works \n" +
+                                            "\t 5) Return to start page\n");
+                            in = scanner.nextInt();
+                            if (in == 5) {
                                 break;
-                            case 2:
-                                System.out.println("Enter book details:");
-                                Book rtrnBook = manager.returnBook(new Book(scanner.next(), scanner.next(), scanner.next()));
-                                try {
-                                    customer.getBorrowedBooks().remove(rtrnBook);
-                                    System.out.println("The specified book: " +rtrnBook.getName() +" has been returned by customer: " + customer.getFirstName() +"\n");
-                                } catch (NullPointerException e){
-                                    System.out.println("Sorry, this book is unavailable");
-                                }
-                                break;
-                            case 3:
-                                System.out.println("Borrowed books for customer: \n" + customer.getFirstName() + " " + customer.getLastName());
-                                for (int i=0; i<customer.getBorrowedBooks().size(); i++){
-                                    System.out.println(customer.getBorrowedBooks().get(i) + " Return date: " + customer.getBorrowedBooks().get(i).getReturnDate());
-                                }
-                                break;
-                            case 4:
-                                System.out.println("All authors and their books: \n"+ manager.getAuthors().toString());
-                                break;
-                            case 5:
-                                System.out.println("Please enter account details: First name, Last name and age \n");
-                                manager.getCustomers().add(new Customer(scanner.next(), scanner.next(), scanner.nextInt()));
-                                System.out.println("Account has been created successfully.");
-                                break;
-                            default:
-                                break;
+                            }
+                            switch (in) {
+                                case 1:
+                                    System.out.println("Enter book details,author ID and your ID:");
+                                    Book brwBook = DBManager.fetchBook(scanner.next(), scanner.next(), scanner.next(), scanner.nextInt());
+                                    int customerId = scanner.nextInt();
+                                    if (brwBook != null && brwBook.getStatus().equals("Available")) {
+                                        System.out.println("Enter return date:");
+                                        DBManager.borrowBook(brwBook, customerId, scanner.next(),customer);
+                                        System.out.println("The specified book: " + brwBook.getName() + " has been borrowed for customer:" + customer.getFirstName() + "with ID: " + customer.getCustomerId());
+                                    } else {
+                                        System.out.println("Sorry, this book is unavailable");
+                                    }
+                                    break;
+                                case 2:
+                                    System.out.println("Enter book details and author ID and your ID:");
+                                    Book rtrnBook = DBManager.fetchBook(scanner.next(), scanner.next(), scanner.next(), scanner.nextInt());
+                                    customerId = scanner.nextInt();
+                                    if (rtrnBook != null && rtrnBook.getStatus().equals("Not Available")) {
+                                        DBManager.returnBook(rtrnBook, customerId,customer);
+                                        System.out.println("The specified book: " + rtrnBook.getName() + " has been returned by customer:" + customer.getFirstName() + "with ID: " + customer.getCustomerId());
+                                    } else {
+                                        System.out.println("Sorry, this book is not borrowed by you");
+                                    }
+                                    break;
+                                case 3:
+                                    System.out.println("Borrowed book for customer: \n" + customer.getFirstName() + " " + customer.getLastName());
+                                    System.out.println(customer.getBorrowedBooks());
+                                    break;
+                                case 4:
+                                    System.out.println("All authors and their books: \n" + DBManager.fetchAuthors());
+                                    break;
+                                case 5:
+                                    break;
+                                default:
+                                    break;
+                            }
                         }
                     }
-
-                } else {
-                        System.out.println("Such customer doesn't exist, please create an account first");
-                        System.out.println("Please enter account details: First name, Last name and age \n");
-                        manager.getCustomers().add(new Customer(scanner.next(), scanner.next(), scanner.nextInt()));
-                    }
-
             } else if (in == 3){
+                DBManager.closConnection();
                 break;
             }
         }
